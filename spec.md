@@ -180,3 +180,21 @@ S&P500、米国個別株、ETF、インデックスファンドをスイング�
 GitHub Pages は、利用者が後で `main` ブランチの `/docs` を公開する。ビルドコマンドは置かない。相対パスで `events.json` を読む。
 
 `git init` は実装作業にも含めない。別の指示があるまでリポジトリは作らない。
+
+## 8. 既存プロジェクトから使うもの
+
+次の5つは、いずれも GitHub Pages（`main` の `/docs`）で動く静的サイトで、画面は日本語、ビルドはしない。公開の置き方だけ揃える。中身の取得処理、Actions、価格表、`common.js` はコピーしない。
+
+- `/home/masasikatano/project/chtick/` 中国A株一覧
+- `/home/masasikatano/project/jptick/` 東証個別株一覧
+- `/home/masasikatano/project/ustick/` 米国個別株一覧
+- `/home/masasikatano/project/etp/` 東証ETP一覧
+- `/home/masasikatano/project/dsbd/` マクロ・ETF判断ダッシュボード
+
+このカレンダーが読むファイルは `docs/events.json` とする。上記の `docs/data/latest.json` は終値のスナップショットであり、予定の元データにはしない。
+
+`dsbd` の月次欄には、米失業率、ISM製造業 PMI、米CPI がある。これは直近の観測値を ETF のタイミング確認に出すためのもので、2026年11月の発表予定、コンセンサス、S&P500への典型反応は入っていない。FRED や公式HTMLの取得、API キーも持ち込まない。日付の出典は第4節のとおり一次情報のままにする。
+
+`ustick` は米国普通株のセクター別終値であり、マグニフィセント7の決算日時は持っていない。決算日は各社 IR のままにする。
+
+`chtick`、`jptick`、`etp` に、2026年11月の米国予定やコンセンサス文はない。
