@@ -9,6 +9,19 @@
 
   var DOW = ["月", "火", "水", "木", "金", "土", "日"];
 
+  var SHORT_NAMES = {
+    "ism-manufacturing-2026-11": "ISM製造業",
+    "aapl-earnings-fy26q4": "Apple決算",
+    "us-midterm-2026": "中間選挙",
+    "employment-situation-2026-11": "雇用統計",
+    "cpi-2026-11": "CPI",
+    "fomc-minutes-2026-11": "FOMC要旨",
+    "monthly-opex-2026-11": "OP満期",
+    "thanksgiving-2026": "感謝祭 休場",
+    "black-friday-2026": "ブラックF",
+    "early-close-2026-11-27": "早期終了"
+  };
+
   var app = document.getElementById("app");
   var asOfNode = document.getElementById("as-of");
 
@@ -78,25 +91,37 @@
   function unconfirmedCard(item) {
     var card = document.createElement("article");
     card.className = "unconfirmed";
-    var kicker = document.createElement("p");
+    var details = document.createElement("details");
+    var summary = document.createElement("summary");
+    var kicker = document.createElement("span");
     kicker.className = "kicker";
     kicker.textContent = "11月上旬・日付未確定";
-    card.appendChild(kicker);
-    var title = document.createElement("h2");
+    summary.appendChild(kicker);
+    var title = document.createElement("span");
+    title.className = "unconfirmed-title";
     title.textContent = item.name;
-    card.appendChild(title);
-    card.appendChild(paragraph(item.window + "。日付が確定したら、その日本時間の日付のマスへ移します。"));
-    appendFields(card, item);
-    card.appendChild(sourceLine(item));
+    summary.appendChild(title);
+    var hint = document.createElement("span");
+    hint.className = "unconfirmed-hint";
+    hint.textContent = "詳細を見る";
+    summary.appendChild(hint);
+    details.appendChild(summary);
+    var body = document.createElement("div");
+    body.className = "unconfirmed-body";
+    body.appendChild(paragraph(item.window + "。日付が確定したら、その日本時間の日付のマスへ移します。"));
+    appendFields(body, item);
+    body.appendChild(sourceLine(item));
+    details.appendChild(body);
+    card.appendChild(details);
     return card;
   }
 
   function monthGrid(data) {
     var grid = document.createElement("div");
     grid.className = "grid";
-    DOW.forEach(function (label) {
+    DOW.forEach(function (label, index) {
       var cell = document.createElement("div");
-      cell.className = "dow";
+      cell.className = "dow" + (index >= 5 ? " weekend" : "");
       cell.textContent = label;
       grid.appendChild(cell);
     });
@@ -104,7 +129,7 @@
     var byDate = {};
     data.events.forEach(function (item) {
       if (!byDate[item.jstDate]) byDate[item.jstDate] = [];
-      byDate[item.jstDate].push(item.category);
+      byDate[item.jstDate].push(item);
     });
 
     var cursor = new Date(2026, 10, 1);
@@ -114,22 +139,54 @@
       var inMonth = cursor.getMonth() === 10;
       var iso = isoDate(cursor);
       if (inMonth) {
+        var dayEvents = byDate[iso] || [];
+        var isWeekend = cursor.getDay() === 0 || cursor.getDay() === 6;
+        var isHoliday = dayEvents.some(function (item) {
+          return item.category === "market" && item.jstTime === null;
+        });
         var button = document.createElement("button");
         button.type = "button";
-        button.className = "cell";
+        button.className =
+          "cell" + (isWeekend ? " weekend" : "") + (isHoliday ? " holiday" : "");
         button.setAttribute("data-date", iso);
-        var num = document.createElement("div");
+        if (isHoliday) button.setAttribute("aria-label", iso + " 休場");
+        var head = document.createElement("div");
+        head.className = "cell-head";
+        var num = document.createElement("span");
         num.className = "day-num";
         num.textContent = String(cursor.getDate());
-        button.appendChild(num);
-        var dots = document.createElement("div");
+        head.appendChild(num);
+        var dots = document.createElement("span");
         dots.className = "dots";
-        unique(byDate[iso] || []).forEach(function (category) {
+        unique(dayEvents.map(function (item) { return item.category; })).forEach(function (category) {
           var dot = document.createElement("i");
           dot.className = "dot " + category;
           dots.appendChild(dot);
         });
-        button.appendChild(dots);
+        head.appendChild(dots);
+        button.appendChild(head);
+        var names = document.createElement("div");
+        names.className = "cell-events";
+        dayEvents.slice(0, 2).forEach(function (item) {
+          var chip = document.createElement("span");
+          chip.className = "cell-event";
+          var chipDot = document.createElement("i");
+          chipDot.className = "dot " + item.category;
+          chip.appendChild(chipDot);
+          var label = document.createElement("span");
+          label.className = "cell-event-name";
+          label.textContent = SHORT_NAMES[item.id] || item.name;
+          label.title = item.name;
+          chip.appendChild(label);
+          names.appendChild(chip);
+        });
+        if (dayEvents.length > 2) {
+          var more = document.createElement("span");
+          more.className = "cell-more";
+          more.textContent = "+" + (dayEvents.length - 2) + "件";
+          names.appendChild(more);
+        }
+        button.appendChild(names);
         grid.appendChild(button);
       } else {
         var pad = document.createElement("div");
