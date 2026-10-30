@@ -46,18 +46,36 @@
 
     var calendar = document.createElement("section");
     calendar.className = "calendar-col";
-    calendar.appendChild(legend());
+    calendar.appendChild(monthGrid(data));
     data.unconfirmed.forEach(function (item) {
       calendar.appendChild(unconfirmedCard(item));
     });
-    calendar.appendChild(monthGrid(data));
-
-    var detail = document.createElement("section");
-    detail.className = "detail-col";
-    detail.appendChild(emptyDetail());
+    calendar.appendChild(legend());
 
     app.appendChild(calendar);
-    app.appendChild(detail);
+
+    var overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.hidden = true;
+    var dialog = document.createElement("div");
+    dialog.className = "detail modal";
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    overlay.appendChild(dialog);
+    app.appendChild(overlay);
+
+    function closeModal() {
+      overlay.hidden = true;
+      calendar.querySelectorAll(".cell.selected").forEach(function (cell) {
+        cell.classList.remove("selected");
+      });
+    }
+    overlay.addEventListener("click", function (event) {
+      if (event.target === overlay || event.target.closest("[data-close]")) closeModal();
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && !overlay.hidden) closeModal();
+    });
 
     calendar.addEventListener("click", function (event) {
       var button = event.target.closest("button[data-date]");
@@ -69,8 +87,16 @@
       var events = data.events.filter(function (item) {
         return item.jstDate === date;
       });
-      detail.innerHTML = "";
-      detail.appendChild(events.length ? dayDetail(date, events) : emptyDay(date));
+      dialog.innerHTML = "";
+      var close = document.createElement("button");
+      close.type = "button";
+      close.className = "modal-close";
+      close.setAttribute("data-close", "");
+      close.setAttribute("aria-label", "閉じる");
+      close.textContent = "×";
+      dialog.appendChild(close);
+      dialog.appendChild(events.length ? dayDetail(date, events) : emptyDay(date));
+      overlay.hidden = false;
     });
   }
 

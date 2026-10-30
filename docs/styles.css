@@ -46,8 +46,7 @@ body {
   align-items: flex-start;
 }
 
-.calendar-col { width: 640px; flex: 0 0 640px; }
-.detail-col { width: 520px; flex: 0 0 520px; }
+.calendar-col { width: 100%; flex: 1 1 auto; }
 
 .legend, .unconfirmed, .detail, .dow, .cell {
   background: var(--panel);
@@ -60,7 +59,7 @@ body {
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  margin-bottom: 12px;
+  margin-top: 12px;
 }
 
 .legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
@@ -82,7 +81,7 @@ body {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 10px 14px;
-  margin-bottom: 12px;
+  margin-top: 12px;
 }
 
 .unconfirmed summary {
@@ -140,7 +139,7 @@ body {
 .dow.weekend { color: #c9a86a; }
 
 .cell {
-  min-height: 96px;
+  min-height: 132px;
   border: 1px solid var(--line);
   border-radius: 8px;
   color: inherit;
@@ -222,6 +221,41 @@ body {
 
 .source { margin-top: 8px; font-size: 14px; }
 .source a { color: #79c0ff; }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 16px;
+  z-index: 50;
+}
+
+.modal-overlay[hidden] { display: none; }
+
+.detail.modal {
+  position: relative;
+  width: 640px;
+  max-width: 100%;
+  max-height: calc(100vh - 96px);
+  overflow: auto;
+}
+
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #232a33;
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1;
+  padding: 2px 10px 5px;
+  cursor: pointer;
+}
 
 .disclaimer {
   padding-bottom: 28px;
