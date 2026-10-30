@@ -2,9 +2,20 @@
   var CATEGORIES = [
     ["earnings", "決算"],
     ["macro", "経済指標"],
-    ["politics", "政治"],
-    ["market", "休場・取引時間"],
-    ["ipo", "IPO"]
+    ["politics", "政治・選挙"],
+    ["market", "市場・取引時間"],
+    ["ipo", "IPO（新規上場）"]
+  ];
+
+  // 略語の解説。表示の統一用にも使う。
+  var GLOSSARY = [
+    ["ISM", "Institute for Supply Management（米供給管理協会）の景気調査。50が好不況の目安。"],
+    ["CPI", "Consumer Price Index（消費者物価指数）。"],
+    ["FOMC", "Federal Open Market Committee（米連邦公開市場委員会）。議事要旨は会合内容の記録。"],
+    ["OPEX", "オプション満期（Expiration）。月次は第3金曜日。"],
+    ["S&P 500", "米大型株500種の株価指数。表記は「S&P 500」に統一。"],
+    ["ET", "Eastern Time（米東部時間）。11月は冬時間（EST、UTC-5）。"],
+    ["JST", "Japan Standard Time（日本時間、UTC+9）。"]
   ];
 
   var DOW = ["月", "火", "水", "木", "金", "土", "日"];
@@ -15,10 +26,10 @@
     "us-midterm-2026": "中間選挙",
     "employment-situation-2026-11": "雇用統計",
     "cpi-2026-11": "CPI",
-    "fomc-minutes-2026-11": "FOMC要旨",
-    "monthly-opex-2026-11": "OP満期",
-    "thanksgiving-2026": "感謝祭 休場",
-    "black-friday-2026": "ブラックF",
+    "fomc-minutes-2026-11": "FOMC議事要旨",
+    "monthly-opex-2026-11": "OPEX満期",
+    "thanksgiving-2026": "感謝祭・休場",
+    "black-friday-2026": "ブラックフライデー",
     "early-close-2026-11-27": "早期終了"
   };
 
@@ -51,6 +62,7 @@
       calendar.appendChild(unconfirmedCard(item));
     });
     calendar.appendChild(legend());
+    calendar.appendChild(glossary());
 
     app.appendChild(calendar);
 
@@ -114,6 +126,25 @@
     return row;
   }
 
+  function glossary() {
+    var section = document.createElement("section");
+    section.className = "glossary";
+    var title = document.createElement("h2");
+    title.textContent = "略語の解説";
+    section.appendChild(title);
+    var list = document.createElement("dl");
+    GLOSSARY.forEach(function (pair) {
+      var term = document.createElement("dt");
+      term.textContent = pair[0];
+      var desc = document.createElement("dd");
+      desc.textContent = pair[1];
+      list.appendChild(term);
+      list.appendChild(desc);
+    });
+    section.appendChild(list);
+    return section;
+  }
+
   function unconfirmedCard(item) {
     var card = document.createElement("article");
     card.className = "unconfirmed";
@@ -121,7 +152,7 @@
     var summary = document.createElement("summary");
     var kicker = document.createElement("span");
     kicker.className = "kicker";
-    kicker.textContent = "11月上旬・日付未確定";
+    kicker.textContent = item.window + "・日付未確定";
     summary.appendChild(kicker);
     var title = document.createElement("span");
     title.className = "unconfirmed-title";
@@ -193,7 +224,7 @@
         button.appendChild(head);
         var names = document.createElement("div");
         names.className = "cell-events";
-        dayEvents.slice(0, 2).forEach(function (item) {
+        dayEvents.slice(0, 3).forEach(function (item) {
           var chip = document.createElement("span");
           chip.className = "cell-event";
           var chipDot = document.createElement("i");
@@ -206,10 +237,10 @@
           chip.appendChild(label);
           names.appendChild(chip);
         });
-        if (dayEvents.length > 2) {
+        if (dayEvents.length > 3) {
           var more = document.createElement("span");
           more.className = "cell-more";
-          more.textContent = "+" + (dayEvents.length - 2) + "件";
+          more.textContent = "+" + (dayEvents.length - 3) + "件";
           names.appendChild(more);
         }
         button.appendChild(names);
@@ -222,15 +253,6 @@
       cursor.setDate(cursor.getDate() + 1);
     }
     return grid;
-  }
-
-  function emptyDetail() {
-    var panel = document.createElement("div");
-    panel.className = "detail";
-    var text = document.createElement("p");
-    text.textContent = "日を選ぶと、コンセンサスとS&P500への影響が出ます";
-    panel.appendChild(text);
-    return panel;
   }
 
   function emptyDay(date) {
@@ -269,26 +291,26 @@
     var times = document.createElement("p");
     times.className = "times";
     times.textContent =
-      "日本時間 " + formatJstDate(item.jstDate) + " " + (item.jstTime || "終日") +
-      " / 米国市場日 " + item.usMarketDate +
-      " / 東部時間 " + (item.etTime || "終日");
+      "日本時間（JST） " + formatJstDate(item.jstDate) + " " + (item.jstTime || "終日") +
+      " ／ 米東部時間（ET） " + item.usMarketDate + " " + (item.etTime || "終日");
     block.appendChild(times);
     appendFields(block, item);
     block.appendChild(sourceLine(item));
     return block;
   }
 
+  // 項目は4点に整理: 市場予想 / 上振れ / 下振れ / 持ち越しの目安
   function appendFields(parent, item) {
     [
-      ["コンセンサス", item.consensus],
-      ["上振れ時の典型反応", item.upside],
-      ["下振れ時の典型反応", item.downside],
-      ["スイングでの見方", item.swing]
+      ["市場予想", item.consensus],
+      ["上振れ", item.upside],
+      ["下振れ", item.downside],
+      ["持ち越し", item.swing]
     ].forEach(function (pair) {
       var field = document.createElement("p");
       field.className = "field";
       var label = document.createElement("strong");
-      label.textContent = pair[0];
+      label.textContent = pair[0] + "： ";
       field.appendChild(label);
       field.appendChild(document.createTextNode(pair[1]));
       parent.appendChild(field);
@@ -331,6 +353,8 @@
 
   function formatJstDate(iso) {
     var parts = iso.split("-");
-    return Number(parts[1]) + "月" + Number(parts[2]) + "日";
+    var date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    var weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+    return Number(parts[1]) + "月" + Number(parts[2]) + "日（" + weekdays[date.getDay()] + "）";
   }
 })();
