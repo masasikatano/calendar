@@ -36,7 +36,11 @@
   var app = document.getElementById("app");
   var asOfNode = document.getElementById("as-of");
 
-  fetch("events.json")
+  var MONTH_FILE = "events-2026-11.json";
+  var params = new URLSearchParams(location.search);
+  var requested = params.get("month");
+  if (requested && /^\d{4}-\d{2}$/.test(requested)) MONTH_FILE = "events-" + requested + ".json";
+  fetch(MONTH_FILE)
     .then(function (response) {
       if (!response.ok) throw new Error("events.json を読めませんでした。");
       return response.json();
@@ -189,11 +193,14 @@
       byDate[item.jstDate].push(item);
     });
 
-    var cursor = new Date(2026, 10, 1);
+    var monthParts = (data.month || "2026-11").split("-");
+    var targetYear = Number(monthParts[0]);
+    var targetMonth = Number(monthParts[1]) - 1;
+    var cursor = new Date(targetYear, targetMonth, 1);
     var lead = (cursor.getDay() + 6) % 7;
     cursor.setDate(1 - lead);
     for (var i = 0; i < 42; i += 1) {
-      var inMonth = cursor.getMonth() === 10;
+      var inMonth = cursor.getMonth() === targetMonth && cursor.getFullYear() === targetYear;
       var iso = isoDate(cursor);
       if (inMonth) {
         var dayEvents = byDate[iso] || [];
