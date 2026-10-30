@@ -1,5 +1,5 @@
 {
-  "asOf": "2026-10-28",
+  "asOf": "2026-10-30",
   "timezone": "Asia/Tokyo",
   "month": "2026-11",
   "unconfirmed": [
@@ -15,6 +15,32 @@
       "swing": "日付確定までは上旬の未確定枠で扱い、初値の方向が見えてから判断する。",
       "sourceUrl": "https://finance.yahoo.com/markets/article/anthropics-ipo-could-start-trading-as-soon-as-nov-16--heres-the-road-from-filing-to-first-trade-155405578.html",
       "sourceName": "Yahoo Finance（上場日は未発表である旨の公開記事）"
+    },
+    {
+      "id": "nvda-earnings-fy27q3-unconfirmed",
+      "name": "NVIDIA 決算",
+      "window": "2026年11月中",
+      "confirmed": false,
+      "category": "earnings",
+      "consensus": "未発表。決算日は会社から確定発表がない。11月17日・18日・25日説があるが、いずれも推定である。",
+      "upside": "売上とデータセンター向けが予想超えなら、指数のハイテク比率を通じてS&P500が買われやすい。",
+      "downside": "見通しが予想割れだと、半導体連れ安でS&P500が押されやすい。",
+      "swing": "日付確定までは未確定枠で扱い、発表日の日本時間のマスへ移してから判断する。",
+      "sourceUrl": "https://investor.nvidia.com/financial-info/quarterly-results/default.aspx",
+      "sourceName": "NVIDIA Investor Relations（日程の確定発表は未確認）"
+    },
+    {
+      "id": "csco-earnings-fy27q1-unconfirmed",
+      "name": "Cisco 決算",
+      "window": "2026年11月中",
+      "confirmed": false,
+      "category": "earnings",
+      "consensus": "未発表。決算日は会社から確定発表がない。11月11日・12日・18日説があるが、いずれも推定である。",
+      "upside": "受注と見通しが予想超えなら、インフラ関連の安心感で指数が支えられやすい。",
+      "downside": "見通しが予想割れだと、設備投資の鈍化懸念で関連株が売られやすい。",
+      "swing": "日付確定までは未確定枠で扱い、発表日の日本時間のマスへ移してから判断する。",
+      "sourceUrl": "https://investor.cisco.com/news/default.aspx",
+      "sourceName": "Cisco Investor Relations（日程の確定発表は未確認）"
     }
   ],
   "events": [
