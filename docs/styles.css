@@ -174,8 +174,8 @@ body {
 .dots { display: inline-flex; gap: 4px; align-items: center; }
 
 .cell-events {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 3px;
   min-width: 0;
 }
@@ -201,7 +201,7 @@ body {
   white-space: nowrap;
 }
 
-.cell-more { font-size: 11px; color: var(--muted); padding-left: 5px; }
+.cell-more { grid-column: 1 / -1; font-size: 11px; color: var(--muted); padding-left: 5px; }
 
 .detail {
   border: 1px solid var(--line);

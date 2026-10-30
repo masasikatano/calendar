@@ -8,7 +8,7 @@ S&P500、米国個別株、ETF、インデックスファンドをスイング�
 
 ブラウザで `docs/index.html` を開きます。左が月グリッド、右が詳細です。日を選ぶと、その日の予定が出ます。Anthropic IPO は日付未確定のため、グリッドの上に常時表示します。
 
-ローカルで見る場合は、`docs/` を配信します。`file://` では `events.json` を読めません。
+ローカルで見る場合は、`docs/` を配信します。`file://` では月ファイルを読めません。
 
 ```bash
 cd docs
@@ -21,7 +21,7 @@ GitHub Pages で公開する場合は、`main` ブランチの `/docs` を指定
 
 ## データの更新
 
-予定の本文は `docs/events.json` だけにあります。日付や文章を変えるときはこのファイルを編集します。HTML には本文を書きません。
+予定の本文は `docs/events-YYYY-MM.json` に月ごとにあります。日付や文章を変えるときは対象月のファイルを編集します。HTML には本文を書きません。
 
 コンセンサスの数値がその時点で公開されていなければ「未発表」と書きます。公式の一次情報で日付を確認できない予定はグリッドに入れません。例外は Anthropic IPO で、未確定枠だけに置きます。
 
@@ -31,8 +31,8 @@ GitHub Pages で公開する場合は、`main` ブランチの `/docs` を指定
 docs/
   index.html    # 画面
   styles.css
-  app.js        # events.json を相対パスで読む
-  events.json   # 予定
+  app.js        # 月ファイルを相対パスで読む（`?month=YYYY-MM` で切替）
+  events-YYYY-MM.json   # 月ごとの予定
 spec.md         # 仕様
 ```
 

@@ -231,7 +231,11 @@
         button.appendChild(head);
         var names = document.createElement("div");
         names.className = "cell-events";
-        dayEvents.slice(0, 3).forEach(function (item) {
+        var CATEGORY_ORDER = { politics: 0, macro: 1, earnings: 2, market: 3, ipo: 4 };
+        var ordered = dayEvents.slice().sort(function (a, b) {
+          return (CATEGORY_ORDER[a.category] ?? 9) - (CATEGORY_ORDER[b.category] ?? 9);
+        });
+        ordered.slice(0, 6).forEach(function (item) {
           var chip = document.createElement("span");
           chip.className = "cell-event";
           var chipDot = document.createElement("i");
@@ -244,10 +248,10 @@
           chip.appendChild(label);
           names.appendChild(chip);
         });
-        if (dayEvents.length > 3) {
+        if (dayEvents.length > 6) {
           var more = document.createElement("span");
           more.className = "cell-more";
-          more.textContent = "+" + (dayEvents.length - 3) + "件";
+          more.textContent = "+" + (dayEvents.length - 6) + "件";
           names.appendChild(more);
         }
         button.appendChild(names);
@@ -298,21 +302,21 @@
     var times = document.createElement("p");
     times.className = "times";
     times.textContent =
-      "日本時間（JST） " + formatJstDate(item.jstDate) + " " + (item.jstTime || "終日") +
-      " ／ 米東部時間（ET） " + item.usMarketDate + " " + (item.etTime || "終日");
+      "日本時間（JST） " + formatJstDate(item.jstDate) + (item.jstTime || "終日") +
+      " / 米東部時間（ET） " + formatJstDate(item.usMarketDate) + (item.etTime || "終日");
     block.appendChild(times);
     appendFields(block, item);
     block.appendChild(sourceLine(item));
     return block;
   }
 
-  // 項目は4点に整理: 市場予想 / 上振れ / 下振れ / 持ち越しの目安
+  // 項目は4点に整理: 予想 / 上振れ / 下振れ / 持越
   function appendFields(parent, item) {
     [
-      ["市場予想", item.consensus],
+      ["予想", item.consensus],
       ["上振れ", item.upside],
       ["下振れ", item.downside],
-      ["持ち越し", item.swing]
+      ["持越", item.swing]
     ].forEach(function (pair) {
       var field = document.createElement("p");
       field.className = "field";
