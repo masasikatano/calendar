@@ -1,7 +1,7 @@
 {
   "asOf": "2026-11-02",
   "month": "2026-11",
-  "note": "月初時点の対象リスト。順位は概算で、月初の時価総額で確定すること。monthsは平常の決算発表月（暦月）。thisMonthは今月の扱いで、confirmed=確定、estimated=推定、unconfirmed=未確定、watch=今月候補、none=対象外。",
+  "note": "月初時点の対象リスト。順位は概算で、月初の時価総額で確定すること。monthsは平常の決算発表月（暦月）。thisMonthは今月の扱いで、confirmed=確定、unconfirmed=未確定、estimated=推定、watch=今月候補、none=対象外。",
   "mag7": [
     {"ticker": "GOOGL", "name": "Alphabet", "months": [1, 4, 7, 10], "thisMonth": "none"},
     {"ticker": "AAPL", "name": "Apple", "months": [1, 4, 7, 10], "thisMonth": "confirmed"},

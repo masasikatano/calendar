@@ -14,47 +14,37 @@
     ["FOMC", "Federal Open Market Committee（米連邦公開市場委員会）。議事要旨は会合内容の記録。"],
     ["OPEX", "オプション満期（Expiration）。月次は第3金曜日。"],
     ["S&P 500", "米大型株500種の株価指数。表記は「S&P 500」に統一。"],
-    ["ET", "Eastern Time（米東部時間）。11月は冬時間（EST、UTC-5）。"],
+    ["ET", "Eastern Time（米東部時間）。夏時間はEDT（UTC-4）、冬時間（11月〜3月初め）はEST（UTC-5）。"],
     ["JST", "Japan Standard Time（日本時間、UTC+9）。"]
   ];
 
   var DOW = ["月", "火", "水", "木", "金", "土", "日"];
 
-  var SHORT_NAMES = {
-    "ism-manufacturing-2026-11": "ISM製造業",
-    "aapl-earnings-fy26q4": "Apple決算",
-    "us-midterm-2026": "中間選挙",
-    "employment-situation-2026-11": "雇用統計",
-    "cpi-2026-11": "CPI",
-    "fomc-minutes-2026-11": "FOMC議事要旨",
-    "monthly-opex-2026-11": "OPEX満期",
-    "thanksgiving-2026": "感謝祭・休場",
-    "black-friday-2026": "ブラックフライデー",
-    "early-close-2026-11-27": "早期終了",
-    "nvda-earnings-fy27q3": "NVIDIA決算",
-    "pltr-earnings-2026q3": "パランティア決算",
-    "amd-earnings-2026q3": "AMD決算",
-    "qcom-earnings-fq4-26": "Qualcomm決算",
-    "arm-earnings-2026q2": "Arm決算"
-  };
-
   var app = document.getElementById("app");
   var asOfNode = document.getElementById("as-of");
+  var currentMonth = null;
 
-  var DEFAULT_MONTH_FILE = "events-2026-11.json";
-  var MONTH_FILE = DEFAULT_MONTH_FILE;
   var params = new URLSearchParams(location.search);
   var requested = params.get("month");
-  if (requested && /^\d{4}-\d{2}$/.test(requested)) MONTH_FILE = "events-" + requested + ".json";
-  fetch(MONTH_FILE)
+  if (requested && !/^\d{4}-\d{2}$/.test(requested)) requested = null;
+
+  fetch("months.json")
     .then(function (response) {
-      if (!response.ok && MONTH_FILE !== DEFAULT_MONTH_FILE) return fetch(DEFAULT_MONTH_FILE);
-      if (!response.ok) throw new Error(DEFAULT_MONTH_FILE + " を読めませんでした。");
-      return response;
-    })
-    .then(function (response) {
-      if (!response.ok) throw new Error(DEFAULT_MONTH_FILE + " を読めませんでした。");
+      if (!response.ok) throw new Error("months.json を読めませんでした。");
       return response.json();
+    })
+    .then(function (months) {
+      if (!months || !months.length) throw new Error("months.json に公開月がありません。");
+      var entry = null;
+      if (requested) {
+        entry = months.filter(function (item) { return item.month === requested; })[0] || null;
+      }
+      var target = entry || months[months.length - 1];
+      currentMonth = target.month;
+      return fetch(target.file).then(function (response) {
+        if (!response.ok) throw new Error(target.file + " を読めませんでした。");
+        return response.json();
+      });
     })
     .then(render)
     .catch(function (error) {
@@ -65,9 +55,21 @@
       app.appendChild(p);
     });
 
+  function formatMonthLabel(ym) {
+    var parts = ym.split("-");
+    return parts[0] + "年" + Number(parts[1]) + "月";
+  }
+
   function render(data) {
     asOfNode.textContent = data.asOf;
     asOfNode.setAttribute("datetime", data.asOf);
+    var monthKey = data.month || currentMonth;
+    if (monthKey) {
+      var heading = formatMonthLabel(monthKey) + " 米国市場スイングカレンダー";
+      document.title = heading;
+      var h1 = document.querySelector(".page-head h1");
+      if (h1) h1.textContent = heading;
+    }
     app.innerHTML = "";
 
     var calendar = document.createElement("section");
@@ -81,7 +83,7 @@
 
     app.appendChild(calendar);
 
-    var universeFile = "universe-" + (data.month || "2026-11") + ".json";
+    var universeFile = "universe-" + (data.month || currentMonth) + ".json";
     fetch(universeFile)
       .then(function (response) {
         return response.ok ? response.json() : null;
@@ -272,7 +274,7 @@
       byDate[item.jstDate].push(item);
     });
 
-    var monthParts = (data.month || "2026-11").split("-");
+    var monthParts = (data.month || currentMonth).split("-");
     var targetYear = Number(monthParts[0]);
     var targetMonth = Number(monthParts[1]) - 1;
     var cursor = new Date(targetYear, targetMonth, 1);
@@ -322,7 +324,7 @@
           chip.appendChild(chipDot);
           var label = document.createElement("span");
           label.className = "cell-event-name";
-          var displayName = SHORT_NAMES[item.id] || item.name;
+          var displayName = item.shortName || item.name;
           if (item.estimated) displayName = "推定 " + displayName;
           label.textContent = displayName;
           label.title = item.name + (item.estimated ? "（日付は推定）" : "");
