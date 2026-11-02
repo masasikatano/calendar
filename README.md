@@ -8,7 +8,7 @@ S&P500、米国個別株、ETF、インデックスファンドをスイング�
 
 ブラウザで `docs/index.html` を開きます。月グリッドの日マスを選ぶと、その日の予定がモーダルダイアログで開きます。閉じるには × ボタン、背景クリック、Esc のいずれかを使います。
 
-`?month=YYYY-MM` を付けると、対応する `events-YYYY-MM.json` を相対パスで読み替えます（例: `index.html?month=2026-11`）。ファイルが無い、または月形式でない場合は `events-2026-11.json` を読みます。
+`?month=YYYY-MM` を付けると、対応する `events-YYYY-MM.json` を相対パスで読み替えます（例: `index.html?month=2026-11`）。月形式でない、または未収録の月を指定した場合と未指定の場合は、`docs/months.json` の末尾（最新月）を読みます。
 
 Anthropic IPO など日付未確定のイベントは、グリッドの直後に未確定カードとして常時表示します。各カードは `details` で初期状態は閉じており、見出しに期間（`window`）と「日付未確定」を出します。日付が確定したら該当日のマスへ移します。
 
@@ -27,3 +27,31 @@ GitHub Pages で公開する場合は、`main` ブランチの `/docs` を指定
 
 - 画面構成・データ形式・収録ルールは [spec.md](spec.md) が正本です。
 - 月データの更新手順はプロジェクト用の skill `.agents/skills/calendar-update/` にまとめています。skill の範囲はデータ更新のみで、見た目の変更や月切替の実装は含みません。
+
+## 既存月を更新する（skill の使い方）
+
+次のような内容を Kimi Code に依頼すると、skill の手順で対象月の JSON を更新します。
+
+- 「Cisco 決算が JST 11/13 早朝に確定したと正式発表があった。2026年11月に反映して」
+- 「NVIDIA 決算のコンセンサスが公開された。最新の値に更新して」
+
+skill は以下を行います。
+
+1. 対象イベントの日付・内容を一次情報（各社 IR、BLS、NYSE など）で確認
+2. `docs/events-YYYY-MM.json` を修正（未確定イベントの確定日への移動、`estimated` の解除、コンセンサスと `asOf` の更新など）
+3. `docs/universe-YYYY-MM.json` の該当銘柄の `thisMonth` を更新
+4. 変更後に JSON の構文と整合性を検証
+
+確定日に移したイベントは `unconfirmed` から `events` へ移し、`sourceUrl` / `sourceName` を正式発表のものに差し替えます。
+
+## 新規の月を作成する（skill の使い方）
+
+例えば「2026年12月分を作成して」と依頼すると、skill は以下を行います。
+
+1. 前月ファイルを複写して `docs/events-YYYY-MM.json` の雛形を作る
+2. spec.md §4 の4枠（定期枠・不定期枠・変動枠・未確定枠）に従い、その月の対象イベントを一次情報で確認して入れる
+3. 定期枠は発生ルールに従う（ISM製造業＝毎月第1営業日、雇用統計＝第1金曜、CPI＝10〜13日前後、FOMC議事要旨＝会合から約3週間後、OPEX＝第3金曜、季節の休場・早期終了＝NYSE 休日カレンダー）
+4. `docs/months.json` の末尾に `{ "month": "YYYY-MM", "file": "events-YYYY-MM.json" }` を追記（末尾が既定月になる）
+5. `docs/universe-YYYY-MM.json` を月初時点の GICS 情報技術セクター時価総額上位50社で更新
+
+作成後は `cd docs && python3 -m http.server 8080` で `http://127.0.0.1:8080/?month=YYYY-MM` を開き、グリッド・未確定カード・詳細モーダルを目視確認してください。GitHub Pages への反映は `main` ブランチにコミット・プッシュすると配信されます。
