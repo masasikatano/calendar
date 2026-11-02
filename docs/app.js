@@ -36,13 +36,19 @@
   var app = document.getElementById("app");
   var asOfNode = document.getElementById("as-of");
 
-  var MONTH_FILE = "events-2026-11.json";
+  var DEFAULT_MONTH_FILE = "events-2026-11.json";
+  var MONTH_FILE = DEFAULT_MONTH_FILE;
   var params = new URLSearchParams(location.search);
   var requested = params.get("month");
   if (requested && /^\d{4}-\d{2}$/.test(requested)) MONTH_FILE = "events-" + requested + ".json";
   fetch(MONTH_FILE)
     .then(function (response) {
-      if (!response.ok) throw new Error("events.json を読めませんでした。");
+      if (!response.ok && MONTH_FILE !== DEFAULT_MONTH_FILE) return fetch(DEFAULT_MONTH_FILE);
+      if (!response.ok) throw new Error(DEFAULT_MONTH_FILE + " を読めませんでした。");
+      return response;
+    })
+    .then(function (response) {
+      if (!response.ok) throw new Error(DEFAULT_MONTH_FILE + " を読めませんでした。");
       return response.json();
     })
     .then(render)
@@ -302,8 +308,8 @@
     var times = document.createElement("p");
     times.className = "times";
     times.textContent =
-      "日本時間（JST） " + formatJstDate(item.jstDate) + (item.jstTime || "終日") +
-      " / 米東部時間（ET） " + formatJstDate(item.usMarketDate) + (item.etTime || "終日");
+      "日本時間（JST） " + formatJstDate(item.jstDate) + " " + (item.jstTime || "終日") +
+      " / 米東部時間（ET） " + formatJstDate(item.usMarketDate) + " " + (item.etTime || "終日");
     block.appendChild(times);
     appendFields(block, item);
     block.appendChild(sourceLine(item));
@@ -364,8 +370,8 @@
 
   function formatJstDate(iso) {
     var parts = iso.split("-");
-    var date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    var date = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])));
     var weekdays = ["日", "月", "火", "水", "木", "金", "土"];
-    return Number(parts[1]) + "月" + Number(parts[2]) + "日（" + weekdays[date.getDay()] + "）";
+    return Number(parts[1]) + "月" + Number(parts[2]) + "日（" + weekdays[date.getUTCDay()] + "）";
   }
 })();
