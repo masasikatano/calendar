@@ -268,6 +268,20 @@ body {
 .glossary dt { font-weight: 700; white-space: nowrap; }
 .glossary dd { margin: 0; color: var(--muted); }
 
+.universe {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-top: 12px;
+}
+.universe h2 { margin: 0 0 6px; font-size: 14px; }
+.universe p { margin: 6px 0; font-size: 13px; color: var(--muted); }
+.universe summary { cursor: pointer; font-size: 13px; }
+.universe table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
+.universe th, .universe td { text-align: left; padding: 4px 8px; border-top: 1px solid var(--line); }
+.universe th { color: var(--muted); font-weight: 650; border-top: none; }
+
 .disclaimer {
   padding-bottom: 28px;
   color: var(--muted);

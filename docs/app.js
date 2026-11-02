@@ -30,7 +30,12 @@
     "monthly-opex-2026-11": "OPEX満期",
     "thanksgiving-2026": "感謝祭・休場",
     "black-friday-2026": "ブラックフライデー",
-    "early-close-2026-11-27": "早期終了"
+    "early-close-2026-11-27": "早期終了",
+    "nvda-earnings-fy27q3": "NVIDIA決算",
+    "pltr-earnings-2026q3": "パランティア決算",
+    "amd-earnings-2026q3": "AMD決算",
+    "qcom-earnings-fq4-26": "Qualcomm決算",
+    "arm-earnings-2026q2": "Arm決算"
   };
 
   var app = document.getElementById("app");
@@ -75,6 +80,16 @@
     calendar.appendChild(glossary());
 
     app.appendChild(calendar);
+
+    var universeFile = "universe-" + (data.month || "2026-11") + ".json";
+    fetch(universeFile)
+      .then(function (response) {
+        return response.ok ? response.json() : null;
+      })
+      .then(function (universe) {
+        if (universe) calendar.appendChild(universeSection(universe));
+      })
+      .catch(function () {});
 
     var overlay = document.createElement("div");
     overlay.className = "modal-overlay";
@@ -152,6 +167,63 @@
       list.appendChild(desc);
     });
     section.appendChild(list);
+    return section;
+  }
+
+  var UNIVERSE_STATUS = {
+    confirmed: "掲載（確定）",
+    estimated: "掲載（推定）",
+    unconfirmed: "未確定枠",
+    watch: "今月候補",
+    none: "—"
+  };
+
+  function universeSection(universe) {
+    var section = document.createElement("section");
+    section.className = "universe";
+    var title = document.createElement("h2");
+    title.textContent = "対象銘柄と決算月";
+    section.appendChild(title);
+    if (universe.note) section.appendChild(paragraph(universe.note));
+    var details = document.createElement("details");
+    var summary = document.createElement("summary");
+    var mag7Count = (universe.mag7 || []).length;
+    var itCount = (universe.itTop50 || []).length;
+    summary.textContent = "一覧を見る（Mag7 " + mag7Count + "社＋IT上位" + itCount + "社）";
+    details.appendChild(summary);
+    var table = document.createElement("table");
+    var head = document.createElement("tr");
+    ["銘柄", "Mag7", "平常の決算月", "今月の扱い"].forEach(function (label) {
+      var th = document.createElement("th");
+      th.textContent = label;
+      head.appendChild(th);
+    });
+    table.appendChild(head);
+    var mag7 = {};
+    (universe.mag7 || []).forEach(function (item) {
+      mag7[item.ticker] = true;
+    });
+    var seen = {};
+    (universe.mag7 || []).concat(universe.itTop50 || []).forEach(function (item) {
+      if (seen[item.ticker]) return;
+      seen[item.ticker] = true;
+      var tr = document.createElement("tr");
+      var ticker = document.createElement("td");
+      ticker.textContent = item.ticker + " " + item.name;
+      tr.appendChild(ticker);
+      var badge = document.createElement("td");
+      badge.textContent = mag7[item.ticker] ? "●" : "—";
+      tr.appendChild(badge);
+      var months = document.createElement("td");
+      months.textContent = item.months.join("・") + "月";
+      tr.appendChild(months);
+      var status = document.createElement("td");
+      status.textContent = UNIVERSE_STATUS[item.thisMonth] || item.thisMonth;
+      tr.appendChild(status);
+      table.appendChild(tr);
+    });
+    details.appendChild(table);
+    section.appendChild(details);
     return section;
   }
 
@@ -249,8 +321,10 @@
           chip.appendChild(chipDot);
           var label = document.createElement("span");
           label.className = "cell-event-name";
-          label.textContent = SHORT_NAMES[item.id] || item.name;
-          label.title = item.name;
+          var displayName = SHORT_NAMES[item.id] || item.name;
+          if (item.estimated) displayName = "推定 " + displayName;
+          label.textContent = displayName;
+          label.title = item.name + (item.estimated ? "（日付は推定）" : "");
           chip.appendChild(label);
           names.appendChild(chip);
         });
@@ -311,6 +385,7 @@
       "日本時間（JST） " + formatJstDate(item.jstDate) + " " + (item.jstTime || "終日") +
       " / 米東部時間（ET） " + formatJstDate(item.usMarketDate) + " " + (item.etTime || "終日");
     block.appendChild(times);
+    if (item.estimated) block.appendChild(paragraph("日付は推定です。確定したら更新します。"));
     appendFields(block, item);
     block.appendChild(sourceLine(item));
     return block;
