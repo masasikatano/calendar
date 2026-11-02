@@ -281,6 +281,10 @@ body {
 .universe table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
 .universe th, .universe td { text-align: left; padding: 4px 8px; border-top: 1px solid var(--line); }
 .universe th { color: var(--muted); font-weight: 650; border-top: none; }
+.universe td.st-confirmed { color: var(--earnings); font-weight: 700; }
+.universe td.st-estimated { color: #5b7fd6; font-weight: 700; }
+.universe td.st-unconfirmed { color: #7fd4e8; font-weight: 700; }
+.universe td.st-watch { color: var(--muted); }
 
 .disclaimer {
   padding-bottom: 28px;

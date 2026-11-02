@@ -171,9 +171,9 @@
   }
 
   var UNIVERSE_STATUS = {
-    confirmed: "掲載（確定）",
-    estimated: "掲載（推定）",
-    unconfirmed: "未確定枠",
+    confirmed: "確定",
+    estimated: "推定",
+    unconfirmed: "未確定",
     watch: "今月候補",
     none: "—"
   };
@@ -209,7 +209,7 @@
       seen[item.ticker] = true;
       var tr = document.createElement("tr");
       var ticker = document.createElement("td");
-      ticker.textContent = item.ticker + " " + item.name;
+      ticker.textContent = item.name + "(" + item.ticker + ")";
       tr.appendChild(ticker);
       var badge = document.createElement("td");
       badge.textContent = mag7[item.ticker] ? "●" : "—";
@@ -219,6 +219,7 @@
       tr.appendChild(months);
       var status = document.createElement("td");
       status.textContent = UNIVERSE_STATUS[item.thisMonth] || item.thisMonth;
+      if (item.thisMonth && item.thisMonth !== "none") status.className = "st-" + item.thisMonth;
       tr.appendChild(status);
       table.appendChild(tr);
     });

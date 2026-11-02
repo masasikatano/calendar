@@ -121,7 +121,7 @@ S&P500、米国個別株、ETF、インデックスファンドをスイング�
 - `asOf`（`YYYY-MM-DD`）、`month`（`YYYY-MM`）、`note`（順位は概算である旨などの注意書き）。
 - `mag7`: マグニフィセント7の配列。各要素は `ticker`、`name`、`months`（平常の決算発表月の配列）、`thisMonth`。
 - `itTop50`: 月初時点の GICS 情報技術セクター時価総額上位50社の配列。各要素は `mag7` と同じ形。Mag7 と重複する銘柄は両方に入れ、表示では1行に寄せる。
-- `thisMonth` は `confirmed`（確定掲載）、`estimated`（推定掲載）、`unconfirmed`（未確定枠）、`watch`（平常パターンでは今月だが裏付けなし）、`none`（今月対象外）のいずれか。
+- `thisMonth` は `confirmed`（確定）、`estimated`（推定）、`unconfirmed`（未確定）、`watch`（今月候補）、`none`（対象外）のいずれか。`watch` は平常パターンでは今月だが裏付け調査中の意味。
 
 ## 6. 文章の基準と免責
 
